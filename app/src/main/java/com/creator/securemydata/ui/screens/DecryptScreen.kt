@@ -31,10 +31,12 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,6 +53,7 @@ import com.creator.securemydata.utils.EncryptionHelper
 @OptIn(ExperimentalMaterial3Api::class)
 fun DecryptScreen(navController: NavHostController?) {
     val inputData = remember { mutableStateOf(TextFieldValue("")) }
+    val inputKey = remember { mutableStateOf(TextFieldValue("")) }
     val decryptedText = remember { mutableStateOf("") }
     val clipboardManager: ClipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
@@ -63,7 +66,7 @@ fun DecryptScreen(navController: NavHostController?) {
             .fillMaxWidth()
             .background(color = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray)
     ) {
-        SetStatusBarColor(color = Color.LightGray)
+        SetStatusBarColor(color = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray)
         Card(modifier = Modifier.padding(top = 20.dp, start = 10.dp), onClick = {
             navController?.navigateUp()
         }) {
@@ -86,14 +89,18 @@ fun DecryptScreen(navController: NavHostController?) {
                 modifier = Modifier.padding(30.dp)
             )
             Text(
-                text = "Secure your texts with Us",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(30.dp, 20.dp, 30.dp, 0.dp),
+                text = stringResource(id = R.string.str_grab_your_data),
                 fontWeight = FontWeight.Medium,
                 color = if (isSystemInDarkTheme()) Color.White else Color.DarkGray,
                 fontStyle = FontStyle.Italic,
-                fontSize = 24.sp
+                fontSize = 24.sp,
+                textAlign = TextAlign.Center
             )
             OutlinedTextBox(
-                label = "Input Text",
+                label = stringResource(id = R.string.str_enter_content),
                 state = inputData.value,
                 onStateChange = { inputData.value = it },
                 cornerRadius = RoundedCornerShape(12.dp),
@@ -101,9 +108,18 @@ fun DecryptScreen(navController: NavHostController?) {
                     .fillMaxWidth()
                     .padding(30.dp, 20.dp, 30.dp, 0.dp)
             )
+            OutlinedTextBox(
+                label = stringResource(id = R.string.str_enter_key),
+                state = inputKey.value,
+                onStateChange = { inputKey.value = it },
+                cornerRadius = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(30.dp, 20.dp, 30.dp, 0.dp)
+            )
             Button(
                 onClick = {
-                    val data = EncryptionHelper.decrypt(inputData.value.text)
+                    val data = EncryptionHelper.decrypt(inputData.value.text, inputKey.value.text)
                     decryptedText.value = data
                 }, shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.buttonColors(
                     containerColor = if (isSystemInDarkTheme()) Purple80 else Purple40,
@@ -112,11 +128,11 @@ fun DecryptScreen(navController: NavHostController?) {
                     .fillMaxWidth()
                     .height(50.dp)
             ) {
-                Text(text = "Decrypt", fontSize = 18.sp)
+                Text(text = stringResource(id = R.string.str_decrypt), fontSize = 18.sp)
             }
 
             Text(
-                text = "Here is your Decrypted string:",
+                text = stringResource(id = R.string.str_here_is_decrypted_string),
                 Modifier.padding(top = 20.dp),
                 fontWeight = FontWeight.Normal,
                 color = if (isSystemInDarkTheme()) Color.White else Color.DarkGray,
@@ -141,6 +157,7 @@ fun DecryptScreen(navController: NavHostController?) {
                         Toast.makeText(context, "Text copied", Toast.LENGTH_SHORT).show()
                         decryptedText.value = ""
                         inputData.value = TextFieldValue("")
+                        inputKey.value = TextFieldValue("")
                     },
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier
@@ -148,7 +165,7 @@ fun DecryptScreen(navController: NavHostController?) {
                         .fillMaxWidth()
                         .height(50.dp)
                 ) {
-                    Text(text = "Copy Text", fontSize = 18.sp)
+                    Text(text = stringResource(id = R.string.str_copy_text), fontSize = 18.sp)
                 }
             }
 

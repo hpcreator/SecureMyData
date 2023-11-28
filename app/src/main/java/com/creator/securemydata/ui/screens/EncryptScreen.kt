@@ -31,10 +31,12 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,6 +53,7 @@ import com.creator.securemydata.utils.EncryptionHelper
 @Composable
 fun EncryptScreen(navController: NavHostController?) {
     val inputData = remember { mutableStateOf(TextFieldValue("")) }
+    val inputKey = remember { mutableStateOf(TextFieldValue("")) }
     val encryptedText = remember { mutableStateOf("") }
     val clipboardManager: ClipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
@@ -84,17 +87,21 @@ fun EncryptScreen(navController: NavHostController?) {
             Image(
                 painter = painterResource(id = R.drawable.ic_logo),
                 contentDescription = "",
-                modifier = Modifier.padding(30.dp)
+                modifier = Modifier.padding(50.dp)
             )
             Text(
-                text = "Secure your texts with Us",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(30.dp, 20.dp, 30.dp, 0.dp),
+                text = stringResource(id = R.string.str_secure_content_with_us),
                 fontWeight = FontWeight.Medium,
                 color = if (isSystemInDarkTheme()) Color.White else Color.DarkGray,
                 fontStyle = FontStyle.Italic,
-                fontSize = 24.sp
+                fontSize = 24.sp,
+                textAlign = TextAlign.Center
             )
             OutlinedTextBox(
-                label = "Input Text",
+                label = stringResource(id = R.string.str_enter_content),
                 state = inputData.value,
                 onStateChange = { inputData.value = it },
                 cornerRadius = RoundedCornerShape(12.dp),
@@ -102,10 +109,23 @@ fun EncryptScreen(navController: NavHostController?) {
                     .fillMaxWidth()
                     .padding(30.dp, 20.dp, 30.dp, 0.dp)
             )
+            OutlinedTextBox(
+                label = stringResource(id = R.string.str_enter_key),
+                state = inputKey.value,
+                onStateChange = { inputKey.value = it },
+                cornerRadius = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(30.dp, 20.dp, 30.dp, 0.dp)
+            )
             Button(
                 onClick = {
-                    val data = EncryptionHelper.encrypt(inputData.value.text)
-                    encryptedText.value = data
+                    if (inputData.value.text.isNotEmpty() && inputKey.value.text.isNotEmpty()) {
+                        val data = EncryptionHelper.encrypt(inputData.value.text, inputKey.value.text)
+                        encryptedText.value = data
+                    } else {
+
+                    }
                 }, shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.buttonColors(
                     containerColor = if (isSystemInDarkTheme()) Purple80 else Purple40,
                 ), modifier = Modifier
@@ -113,11 +133,11 @@ fun EncryptScreen(navController: NavHostController?) {
                     .fillMaxWidth()
                     .height(50.dp)
             ) {
-                Text(text = "Encrypt", fontSize = 18.sp)
+                Text(text = stringResource(id = R.string.str_encrypt), fontSize = 18.sp)
             }
 
             Text(
-                text = "Here is your Encrypted string:",
+                text = stringResource(id = R.string.str_here_is_encrypted_string),
                 Modifier.padding(top = 20.dp),
                 fontWeight = FontWeight.Normal,
                 color = if (isSystemInDarkTheme()) Color.White else Color.DarkGray,
@@ -149,7 +169,7 @@ fun EncryptScreen(navController: NavHostController?) {
                         .fillMaxWidth()
                         .height(50.dp)
                 ) {
-                    Text(text = "Copy Text", fontSize = 18.sp)
+                    Text(text = stringResource(id = R.string.str_copy_text), fontSize = 18.sp)
                 }
             }
 
