@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,7 +22,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,132 +40,165 @@ import com.creator.securemydata.ui.theme.SecureMyDataTheme
 @Composable
 fun Home(navController: NavHostController?) {
     val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp.dp
-    Box(
+    //val screenHeight = configuration.screenHeightDp.dp
+
+    Column(
         modifier = Modifier
-            .verticalScroll(rememberScrollState())
             .fillMaxWidth()
-            .height(screenHeight)
+            .fillMaxHeight()
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
                         Color(0xFF00ff87), Color(0xFF60efff)
                     )
                 )
-            )
+            ), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SetStatusBarColor(color = Color(0xFF00ff87))
-        Column(
+        Text(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .fillMaxWidth()
+                .padding(30.dp, 20.dp, 30.dp, 0.dp),
+            text = stringResource(id = R.string.str_home_label),
+            fontWeight = FontWeight.SemiBold,
+            color = if (isSystemInDarkTheme()) Color.DarkGray else Color.DarkGray,
+            fontSize = 24.sp,
+            textAlign = TextAlign.Center
+        )
+        Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(), horizontalAlignment = Alignment.CenterHorizontally
+                .padding(30.dp, 10.dp, 30.dp, 0.dp),
+            text = stringResource(id = R.string.str_home_description),
+            fontWeight = FontWeight.Normal,
+            color = if (isSystemInDarkTheme()) Color.DarkGray else Color.DarkGray,
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .weight(1f)
         ) {
-            Text(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .fillMaxWidth()
-                    .padding(30.dp, 20.dp, 30.dp, 0.dp),
-                text = stringResource(id = R.string.str_home_label),
-                fontWeight = FontWeight.SemiBold,
-                color = if (isSystemInDarkTheme()) Color.DarkGray else Color.DarkGray,
-                fontSize = 24.sp,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(30.dp, 10.dp, 30.dp, 0.dp),
-                text = stringResource(id = R.string.str_home_description),
-                fontWeight = FontWeight.Normal,
-                color = if (isSystemInDarkTheme()) Color.DarkGray else Color.DarkGray,
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center
-            )
-            Card(
-                onClick = { navController?.navigate(Screen.EncryptScreen.route) },
-                shape = RoundedCornerShape(15.dp),
-                modifier = Modifier
-                    .padding(30.dp, 30.dp, 30.dp, 0.dp)
-                    .background(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                Color(0xFF60efff), Color(0xFF00ff87)
-                            )
-                        )
-                    )
-                    .shadow(15.dp, shape = RectangleShape)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_lock),
-                    contentDescription = "",
-                    contentScale = ContentScale.Crop,
-                    colorFilter = ColorFilter.tint(Color.White),
+            Column {
+                Box(
                     modifier = Modifier
-                        .background(
-                            brush = Brush.radialGradient(
-                                colors = listOf(
-                                    Color(0xFF00ff87), Color(0xFF60efff)
-                                )
-                            )
-                        )
-                        .padding(10.dp)
+                        .fillMaxHeight()
                         .fillMaxWidth()
-                )
-            }
-            Text(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxWidth(),
-                text = stringResource(id = R.string.str_encrypt),
-                fontWeight = FontWeight.Medium,
-                color = if (isSystemInDarkTheme()) Color.DarkGray else Color.DarkGray,
-                fontSize = 18.sp,
-                textAlign = TextAlign.Center
-            )
-            Card(
-                onClick = { navController?.navigate(Screen.DecryptScreen.route) },
-                shape = RoundedCornerShape(15.dp),
-                modifier = Modifier
-                    .padding(30.dp, 30.dp, 30.dp, 0.dp)
-                    .background(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                Color(0xFF60efff), Color(0xFF00ff87)
+                        .padding(10.dp)
+                        .weight(1f)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth()
+                    ) {
+                        Card(
+                            onClick = { navController?.navigate(Screen.EncryptScreen.route) },
+                            shape = RoundedCornerShape(15.dp),
+                            modifier = Modifier
+                                .padding(30.dp, 30.dp, 30.dp, 0.dp)
+                                .background(
+                                    brush = Brush.radialGradient(
+                                        colors = listOf(
+                                            Color(0xFF60efff), Color(0xFF00ff87)
+                                        )
+                                    )
+                                )
+                                .shadow(15.dp, shape = RectangleShape)
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_lock),
+                                contentDescription = "",
+                                colorFilter = ColorFilter.tint(Color.White),
+                                modifier = Modifier
+                                    .background(
+                                        brush = Brush.radialGradient(
+                                            colors = listOf(
+                                                Color(0xFF00ff87), Color(0xFF60efff)
+                                            )
+                                        )
+                                    )
+                                    .fillMaxWidth()
+                                    .fillMaxHeight()
                             )
+                        }
+                        Text(
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .fillMaxWidth(),
+                            text = stringResource(id = R.string.str_encrypt),
+                            fontWeight = FontWeight.Medium,
+                            color = if (isSystemInDarkTheme()) Color.DarkGray else Color.DarkGray,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center
                         )
-                    )
-                    .shadow(15.dp, shape = RectangleShape)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_lock_open),
-                    contentDescription = "",
-                    contentScale = ContentScale.Crop,
-                    colorFilter = ColorFilter.tint(Color.White),
+                    }
+                }
+                Box(
                     modifier = Modifier
-                        .background(
-                            brush = Brush.radialGradient(
-                                colors = listOf(
-                                    Color(0xFF60efff), Color(0xFF00ff87)
-                                )
-                            )
-                        )
-                        .padding(10.dp)
+                        .fillMaxHeight()
                         .fillMaxWidth()
+                        .padding(10.dp)
+                        .weight(1f)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth()
+                    ) {
+                        Card(
+                            onClick = { navController?.navigate(Screen.DecryptScreen.route) },
+                            shape = RoundedCornerShape(15.dp),
+                            modifier = Modifier
+                                .padding(30.dp, 30.dp, 30.dp, 0.dp)
+                                .background(
+                                    brush = Brush.radialGradient(
+                                        colors = listOf(
+                                            Color(0xFF60efff), Color(0xFF00ff87)
+                                        )
+                                    )
+                                )
+                                .shadow(15.dp, shape = RectangleShape)
+                                .weight(1f)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_lock_open),
+                                contentDescription = "",
+                                colorFilter = ColorFilter.tint(Color.White),
+                                modifier = Modifier
+                                    .background(
+                                        brush = Brush.radialGradient(
+                                            colors = listOf(
+                                                Color(0xFF60efff), Color(0xFF00ff87)
+                                            )
+                                        )
+                                    )
+                                    .fillMaxWidth()
+                                    .fillMaxHeight()
 
-                )
+                            )
+                        }
+                        Text(
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .fillMaxWidth(),
+                            text = stringResource(id = R.string.str_decrypt),
+                            fontWeight = FontWeight.Medium,
+                            color = if (isSystemInDarkTheme()) Color.DarkGray else Color.DarkGray,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
-            Text(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxWidth(),
-                text = stringResource(id = R.string.str_decrypt),
-                fontWeight = FontWeight.Medium,
-                color = if (isSystemInDarkTheme()) Color.DarkGray else Color.DarkGray,
-                fontSize = 18.sp,
-                textAlign = TextAlign.Center
-            )
+
         }
     }
+
 }
 
 @Preview(name = "LightTheme", showBackground = true, showSystemUi = true)
