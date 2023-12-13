@@ -21,14 +21,18 @@ object EncryptionHelper {
         }
     }
 
-    fun decrypt(input: String, key: String): String {
-        val cipher = Cipher.getInstance(TRANSFORMATION)
-        cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(key.toByteArray(charset(ENCODING)).copyOf(16), ALGORITHM))
-        val decryptedBytes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            cipher.doFinal(Base64.getDecoder().decode(input))
-        } else {
-            byteArrayOf()
+    fun decrypt(input: String, key: String): Result<String> {
+        return try {
+            val cipher = Cipher.getInstance(TRANSFORMATION)
+            cipher.init(Cipher.DECRYPT_MODE, SecretKeySpec(key.toByteArray(charset(ENCODING)).copyOf(16), ALGORITHM))
+            val decryptedBytes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                cipher.doFinal(Base64.getDecoder().decode(input))
+            } else {
+                byteArrayOf()
+            }
+            Result.Success(String(decryptedBytes, charset(ENCODING)))
+        } catch (e: Exception) {
+            Result.Error("Decryption failed. Please check your key and try again.")
         }
-        return String(decryptedBytes, charset(ENCODING))
     }
 }

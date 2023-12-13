@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -24,17 +26,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,13 +54,14 @@ import com.creator.securemydata.ui.theme.Purple80
 import com.creator.securemydata.ui.theme.SecureMyDataTheme
 import com.creator.securemydata.utils.EncryptionHelper
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun EncryptScreen(navController: NavHostController?) {
     val inputData = remember { mutableStateOf(TextFieldValue("")) }
     val inputKey = remember { mutableStateOf(TextFieldValue("")) }
     val encryptedText = remember { mutableStateOf("") }
     val clipboardManager: ClipboardManager = LocalClipboardManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
 
     val configuration = LocalConfiguration.current
@@ -105,6 +111,8 @@ fun EncryptScreen(navController: NavHostController?) {
                 state = inputData.value,
                 onStateChange = { inputData.value = it },
                 cornerRadius = RoundedCornerShape(12.dp),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next, autoCorrect = false),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(30.dp, 20.dp, 30.dp, 0.dp)
@@ -114,6 +122,8 @@ fun EncryptScreen(navController: NavHostController?) {
                 state = inputKey.value,
                 onStateChange = { inputKey.value = it },
                 cornerRadius = RoundedCornerShape(12.dp),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next, autoCorrect = false),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(30.dp, 20.dp, 30.dp, 0.dp)
@@ -124,7 +134,7 @@ fun EncryptScreen(navController: NavHostController?) {
                         val data = EncryptionHelper.encrypt(inputData.value.text, inputKey.value.text)
                         encryptedText.value = data
                     } else {
-
+                        //show error to text box
                     }
                 }, shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.buttonColors(
                     containerColor = if (isSystemInDarkTheme()) Purple80 else Purple40,
@@ -162,6 +172,7 @@ fun EncryptScreen(navController: NavHostController?) {
                         Toast.makeText(context, "Text copied", Toast.LENGTH_SHORT).show()
                         encryptedText.value = ""
                         inputData.value = TextFieldValue("")
+                        inputKey.value = TextFieldValue("")
                     },
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier

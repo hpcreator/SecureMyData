@@ -5,8 +5,8 @@
     <string name="str_encrypt">Encrypt</string>
     <string name="str_decrypt">Decrypt</string>
     <string name="str_secure_content_with_us">Secure your sensitive content with us !</string>
-    <string name="str_enter_content">Enter content…</string>
-    <string name="str_enter_key">Enter key…</string>
+    <string name="str_enter_content">Enter content</string>
+    <string name="str_enter_key">Enter key</string>
     <string name="str_here_is_encrypted_string">Here is your Encrypted string:</string>
     <string name="str_here_is_decrypted_string">Here is your Decrypted string:</string>
     <string name="str_text_copied">Text copied</string>

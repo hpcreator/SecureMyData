@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -19,22 +21,30 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,17 +58,25 @@ import com.creator.securemydata.ui.theme.Purple40
 import com.creator.securemydata.ui.theme.Purple80
 import com.creator.securemydata.ui.theme.SecureMyDataTheme
 import com.creator.securemydata.utils.EncryptionHelper
+import com.creator.securemydata.utils.Result
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 fun DecryptScreen(navController: NavHostController?) {
     val inputData = remember { mutableStateOf(TextFieldValue("")) }
     val inputKey = remember { mutableStateOf(TextFieldValue("")) }
     val decryptedText = remember { mutableStateOf("") }
     val clipboardManager: ClipboardManager = LocalClipboardManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val errorMessage = remember { mutableStateOf("") }
+
     Box(
         modifier = Modifier
             .verticalScroll(rememberScrollState())
@@ -66,6 +84,27 @@ fun DecryptScreen(navController: NavHostController?) {
             .fillMaxWidth()
             .background(color = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray)
     ) {
+        LaunchedEffect(errorMessage.value) {
+            if (errorMessage.value.isNotBlank()) {
+                CoroutineScope(coroutineContext).launch {
+                    snackbarHostState.showSnackbar(errorMessage.value)
+                }
+            }
+        }
+        SnackbarHost(
+            hostState = snackbarHostState, modifier = Modifier
+                .padding(8.dp)
+                .align(Alignment.BottomCenter)
+        ) {
+            Snackbar(content = {
+                Text(errorMessage.value)
+            }, action = {
+                TextButton(onClick = { snackbarHostState.currentSnackbarData?.dismiss() }) {
+                    Text("Dismiss")
+                }
+            })
+        }
+
         SetStatusBarColor(color = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray)
         Card(modifier = Modifier.padding(top = 20.dp, start = 10.dp), onClick = {
             navController?.navigateUp()
@@ -104,6 +143,8 @@ fun DecryptScreen(navController: NavHostController?) {
                 state = inputData.value,
                 onStateChange = { inputData.value = it },
                 cornerRadius = RoundedCornerShape(12.dp),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next, autoCorrect = false),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(30.dp, 20.dp, 30.dp, 0.dp)
@@ -113,14 +154,24 @@ fun DecryptScreen(navController: NavHostController?) {
                 state = inputKey.value,
                 onStateChange = { inputKey.value = it },
                 cornerRadius = RoundedCornerShape(12.dp),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next, autoCorrect = false),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(30.dp, 20.dp, 30.dp, 0.dp)
             )
             Button(
                 onClick = {
-                    val data = EncryptionHelper.decrypt(inputData.value.text, inputKey.value.text)
-                    decryptedText.value = data
+                    when (val decryptedData = EncryptionHelper.decrypt(inputData.value.text, inputKey.value.text)) {
+                        is Result.Success -> {
+                            decryptedText.value = decryptedData.data
+                        }
+
+                        is Result.Error -> {
+                            errorMessage.value = decryptedData.message
+                        }
+
+                    }
                 }, shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.buttonColors(
                     containerColor = if (isSystemInDarkTheme()) Purple80 else Purple40,
                 ), modifier = Modifier
